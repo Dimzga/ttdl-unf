@@ -1,11 +1,12 @@
+
 const express = require('express');
-const { tikdown } = require('nayan-media-downloader');
+const axios = require('axios'); // Tambahkan axios
 const path = require('path');
 const app = express();
 const port = 3000;
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname, '..', 'public'))); // Pindahkan ke sini
+app.use(express.static(path.join(__dirname, '..', 'public')));
 
 app.use('/download', async (req, res) => {
   const { url } = req.query;
@@ -15,7 +16,10 @@ app.use('/download', async (req, res) => {
   }
 
   try {
-    const data = await tikdown(url);
+    const apiUrl = `https://ssstik.io/abc?url=${encodeURIComponent(url)}`;
+    const response = await axios.get(apiUrl); // Menggunakan GET request ke API
+
+    const data = response.data;
 
     if (data.status) {
       return res.json({
@@ -42,6 +46,7 @@ app.use('/download', async (req, res) => {
       });
     }
   } catch (error) {
+    console.error('Error fetching data from ssstik.io:', error); // Log error ke konsol
     res.status(500).json({ error: 'Terjadi kesalahan pada server' });
   }
 });
